@@ -1,12 +1,11 @@
-// import dotenv from 'dotenv';
-// import path from 'path';
+import dotenv from 'dotenv';
+import path from 'path';
 
-// dotenv.config({ path: path.join(process.cwd(), '.env') });
+dotenv.config({ path: path.join(process.cwd(), '.env') });
 
-// const config = {
-//     DATABASE_URL: process.env.DATABASE_URL!,
-//     PORT: process.env.PORT || 5000,
-//     JWT_SECRET: process.env.JWT_SECRET!,
-// }
+const config = {
+    DATABASE_URL: process.env.DATABASE_URL,
+    port: Number(process.env.PORT) || 5000,
+}
 
-// export default config;
+export default config;
