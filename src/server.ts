@@ -2,8 +2,6 @@ import app from "./app";
 import config from "./config";
 const port = config.port;
 
-// initialize DB
-// initDB();
 
 // starting server
 app.listen(port, () => {
