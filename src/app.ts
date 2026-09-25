@@ -22,16 +22,16 @@ app.get('/', logger, (req: Request, res: Response) => {
 })
 
 //users crud
-app.use("/users", userRoutes);
+app.use("/api/v1/users", userRoutes);
 
 //vehicle crud
-app.use("/vehicles", vehicleRoutes);
+app.use("/api/v1/vehicles", vehicleRoutes);
 
 //bookings crud
-app.use("/bookings", bookingRoutes);
+app.use("/api/v1/bookings", bookingRoutes);
 
 //auth
-app.use("/auth", authRoutes);
+app.use("/api/v1/auth", authRoutes);
 
 
 app.use((req: Request, res: Response) => {

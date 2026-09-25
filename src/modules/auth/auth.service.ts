@@ -18,6 +18,19 @@ const loginUser = async (email: string, password: string) => {
     return { user, token };
 }
 
+const signupUser = async (name:string, email: string, password: string, phone: string, role: string) => {
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (result.rows.length > 0) {
+        throw new Error("User already exists");
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result2 = await pool.query("INSERT INTO users (name,email, password, phone, role) VALUES ($1, $2,$3, $4, $5) RETURNING *", [name,email, hashedPassword, phone,role]);
+    const user = result2.rows[0];
+    const token = jwt.sign({ id: user.id, name: user.name, email: user.email, role: user.role }, config.jwt_secret as string, { expiresIn: "7d" });
+    return { user, token };
+}
+
 export const authServices = {
-    loginUser
+    loginUser,
+    signupUser
 }   
