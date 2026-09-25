@@ -134,61 +134,74 @@ const cancelBooking = async (
 
 const returnBooking = async (bookingId: string) => {
 
-    const client = await pool.connect();
+  const client = await pool.connect();
 
-    try {
-        await client.query("BEGIN");
+  try {
 
-        // Find booking and vehicle
-        const bookingResult = await client.query(
-            `
-            SELECT vehicle_id
-            FROM bookings
-            WHERE id = $1
-              AND status = 'active'
-            `,
-            [bookingId]
-        );
+    await client.query("BEGIN");
 
-        if (bookingResult.rows.length === 0) {
-            throw new Error("Active booking not found");
-        }
+    const bookingResult = await client.query(
+      `
+      SELECT *
+      FROM bookings
+      WHERE id = $1
+      FOR UPDATE
+      `,
+      [bookingId]
+    );
 
-        const vehicleId = bookingResult.rows[0].vehicle_id;
-
-        // Mark booking as returned
-        const updatedBooking = await client.query(
-            `
-            UPDATE bookings
-            SET status = 'returned'
-            WHERE id = $1
-            RETURNING *
-            `,
-            [bookingId]
-        );
-
-        // Make vehicle available
-        await client.query(
-            `
-            UPDATE vehicles
-            SET status = 'available'
-            WHERE id = $1
-            `,
-            [vehicleId]
-        );
-
-        await client.query("COMMIT");
-
-        return updatedBooking;
-
-    } catch (error) {
-
-        await client.query("ROLLBACK");
-        throw error;
-
-    } finally {
-        client.release();
+    if (bookingResult.rows.length === 0) {
+      throw new Error("Booking not found");
     }
+
+    const booking = bookingResult.rows[0];
+
+    if (booking.status !== "active") {
+      throw new Error(
+        "Only active bookings can be returned"
+      );
+    }
+
+    const result = await client.query(
+      `
+      UPDATE bookings
+      SET status = 'returned'
+      WHERE id = $1
+      RETURNING
+        id,
+        customer_id,
+        vehicle_id,
+        rent_start_date,
+        rent_end_date,
+        total_price,
+        status
+      `,
+      [bookingId]
+    );
+
+    await client.query(
+      `
+      UPDATE vehicles
+      SET availability_status = 'available'
+      WHERE id = $1
+      `,
+      [booking.vehicle_id]
+    );
+
+    await client.query("COMMIT");
+
+    return result.rows[0];
+
+  } catch (error) {
+
+    await client.query("ROLLBACK");
+    throw error;
+
+  } finally {
+
+    client.release();
+
+  }
 };
 
 const deleteBooking = async (id: string) => {

@@ -78,46 +78,66 @@ const getAllBookings = async (req: Request, res: Response) => {
 }
 
 const updateBooking = async (req: Request, res: Response) => {
-  const { bookingId } = req.params;
-  const customerId = req.user?.id;
-  const { status } = req.body;
+    const { bookingId } = req.params;
+    const customerId = req.user?.id;
+    const { status } = req.body;
 
-  console.log("PARAMS:", req.params);
-  console.log("BOOKING ID:", bookingId);
-  console.log("CUSTOMER ID:", customerId);
+    console.log("PARAMS:", req.params);
+    console.log("BOOKING ID:", bookingId);
+    console.log("CUSTOMER ID:", customerId);
+    console.log("BOOKING ID:", bookingId);
+    console.log("ROLE:", req.user?.role);
+    console.log("STATUS FROM BODY:", status);
+    try {
+        if (req.user?.role === "admin") {
+            if (status !== "returned") {
+                return res.status(400).json({
+                    success: false,
+                    message: "Admin can only return a booking"
+                });
+            }
 
-  try {
-    if (req.user?.role !== "customer") {
-      return res.status(403).json({
-        success: false,
-        message: "Only customers can cancel bookings"
-      });
+            const result = await bookingServices.returnBooking(bookingId as string);
+
+            return res.status(200).json({
+                success: true,
+                message: "Booking returned successfully",
+                data: result
+            });
+        }
+        if (req.user?.role !== "customer") {
+            return res.status(403).json({
+                success: false,
+                message: "Only customers can cancel bookings"
+            });
+        }
+
+        if (status !== "cancelled") {
+            return res.status(400).json({
+                success: false,
+                message: "Customer can only cancel a booking"
+            });
+        }
+
+        const result = await bookingServices.cancelBooking(
+            bookingId,
+            Number(customerId)
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Booking cancelled successfully",
+            data: result
+        });
+
+
+
+    } catch (error: any) {
+        return res.status(400).json({
+            success: false,
+            message: error.message
+        });
     }
-
-    if (status !== "cancelled") {
-      return res.status(400).json({
-        success: false,
-        message: "Customer can only cancel a booking"
-      });
-    }
-
-    const result = await bookingServices.cancelBooking(
-      bookingId,
-      Number(customerId)
-    );
-
-    return res.status(200).json({
-      success: true,
-      message: "Booking cancelled successfully",
-      data: result
-    });
-
-  } catch (error: any) {
-    return res.status(400).json({
-      success: false,
-      message: error.message
-    });
-  }
 };
 
 const deleteBooking = async (req: Request, res: Response) => {
