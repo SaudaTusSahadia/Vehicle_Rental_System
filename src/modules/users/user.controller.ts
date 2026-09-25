@@ -27,7 +27,15 @@ const getUsers = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "Users fetched successfully",
-      data: result.rows
+      data: result.rows.map((user) => {
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role
+        }
+      })
     })
   } catch (err: any) {
     res.status(500).json({
@@ -65,7 +73,7 @@ const getSingleUser = async (req: Request, res: Response) => {
 
 //update user
 const updateUser = async (req: Request, res: Response) => {
-  const { name, email, password, phone, role } = req.body;
+  const { name, email, phone, role } = req.body;
   const userId = req.params.id as string;
 
   try {
@@ -76,11 +84,17 @@ const updateUser = async (req: Request, res: Response) => {
         message: "User not found"
       })
     }
-    const result = await pool.query("UPDATE users SET name = $1, email = $2, password = $3, phone = $4, role = $5 WHERE id = $6 RETURNING *", [name, email, password, phone, role, userId]);
+    const result = await pool.query("UPDATE users SET name = $1, email = $2, phone = $3, role = $4 WHERE id = $5 RETURNING *", [name, email, phone, role, userId]);
     res.status(200).json({
       success: true,
       message: "User updated successfully",
-      data: result.rows[0]
+      data: {
+        id: result.rows[0].id,
+        name: result.rows[0].name,
+        email: result.rows[0].email,
+        phone: result.rows[0].phone,
+        role: result.rows[0].role
+      }
     })
   } catch (err: any) {
     res.status(500).json({
@@ -99,6 +113,21 @@ const deleteUser = async (req: Request, res: Response) => {
       return res.status(404).json({
         success: false,
         message: "User not found"
+      })
+    }
+    //checking if the user have active booking
+    const bookingResult = await pool.query(
+      `SELECT id
+       FROM bookings
+       WHERE customer_id = $1
+       AND payment_status = 'active'`,
+      [id]
+    );
+
+    if(bookingResult.rows.length > 0){
+      return res.status(404).json({
+        success: false,
+        message: "User has active booking"
       })
     }
     const result = await userServices.deleteUser(id);

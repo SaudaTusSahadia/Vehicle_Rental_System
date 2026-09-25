@@ -8,9 +8,9 @@ const router = Router();
 
 router.post('/', auth("admin"), vehicleController.createVehicle);
 
-router.get('/', auth("admin", "user"), vehicleController.getAllVehicles);
+router.get('/', auth("admin", "customer"), vehicleController.getAllVehicles);
 
-router.get('/:id', auth("admin", "user"), vehicleController.getSingleVehicle);
+router.get('/:id', auth("admin", "customer"), vehicleController.getSingleVehicle);
 
 router.put('/:id', auth("admin"), vehicleController.updateVehicle);
 

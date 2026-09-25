@@ -39,11 +39,11 @@ const getSingleUser = async(id: string) => {
 };
 
 //update user
-const updateUser = async(id: string, name: string, email: string, password: string, phone: string, role: string) => {
+const updateUser = async(id: string, name: string, email: string, phone: string, role: string) => {
     try {
         const result = await pool.query(
-            'UPDATE users SET name = $1, email = $2, password = $3, phone = $4, role = $5 WHERE id = $6 RETURNING *',
-            [name, email, password, phone, role, id]
+            'UPDATE users SET name = $1, email = $2, phone = $3, role = $4 WHERE id = $5 RETURNING *',
+            [name, email,phone, role, id]
         );
         return result;
     } catch (error) {
@@ -54,6 +54,10 @@ const updateUser = async(id: string, name: string, email: string, password: stri
 //delete user
 const deleteUser = async(id: string) => {
     try {
+        const existingUser = await getSingleUser(id);
+        if (existingUser.rows.length === 0) {
+            throw new Error("User not found");
+        }
         const result = await pool.query("DELETE FROM users WHERE id = $1", [id]);
         return result;
     } catch (error) {

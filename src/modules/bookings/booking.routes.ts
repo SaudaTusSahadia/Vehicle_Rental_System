@@ -1,18 +1,17 @@
 import { Router } from "express";
 import { bookingController } from "./booking.controller";
+import auth from "../../middleware/auth";
 
 const router = Router();
 
 //booking routes
 
-router.post('/', bookingController.createBooking);
+router.post('/', auth("admin", "customer"), bookingController.createBooking);
 
-router.get('/', bookingController.getAllBookings);
+router.get('/', auth("admin", "customer"), bookingController.getAllBookings);
 
-router.get('/:id', bookingController.getSingleBooking);
+router.put('/:id', auth("admin", "customer"), bookingController.updateBooking);
 
-router.put('/:id', bookingController.updateBooking);
-
-router.delete('/:id', bookingController.deleteBooking);
+router.delete('/:id', auth("admin", "customer"), bookingController.deleteBooking);
 
 export const bookingRoutes = router;

@@ -10,7 +10,7 @@ const auth = (...role: string[]) => {
      try{
         const headerAuth = req.headers.authorization;
      if(!headerAuth){
-        return res.status(500).json({
+        return res.status(401).json({
             success: false,
             message: "You do not have permission"
         })
@@ -19,7 +19,7 @@ const auth = (...role: string[]) => {
      console.log(decoded)
      req.user = decoded ;
      if(role.length && !role.includes(decoded.role as string)){
-        return res.status(500).json({
+        return res.status(401).json({
             success: false,
             message: "You do not have permission"
         })

@@ -13,7 +13,7 @@ const loginUser = async (email: string, password: string) => {
     if (!isPasswordValid) {
         throw new Error("Invalid password");
     }
-    const token = jwt.sign({ name: user.name, email: user.email, role: user.role }, config.jwt_secret as string, { expiresIn: "7d" });
+    const token = jwt.sign({id: user.id, name: user.name, email: user.email, role: user.role }, config.jwt_secret as string, { expiresIn: "7d" });
     console.log({ token })
     return { user, token };
 }

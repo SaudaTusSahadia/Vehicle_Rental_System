@@ -3,10 +3,10 @@ import { vehicleServices } from "./vehicle.service";
 
 //create vehicle
 const createVehicle = async (req: Request, res: Response) => {
-  const { vehicle_name, vehicle_type, registration_number, daily_rent_price, availability_status } = req.body;
+  const { vehicle_name, type, registration_number, daily_rent_price, availability_status } = req.body;
 
   try {
-    const result = await vehicleServices.createVehicle(vehicle_name, vehicle_type, registration_number, daily_rent_price, availability_status);
+    const result = await vehicleServices.createVehicle(vehicle_name, type, registration_number, daily_rent_price, availability_status);
 
     res.status(201).json({
       success: true,
@@ -59,8 +59,8 @@ const getSingleVehicle = async (req: Request, res: Response) => {
 const updateVehicle = async(req: Request, res: Response) => {
   try{
     const id = req.params.id as string;
-    const {vehicle_name, vehicle_type, registration_number, daily_rent_price, availability_status} = req.body;
-    const result = await vehicleServices.updateVehicle(id,vehicle_name, vehicle_type, registration_number, daily_rent_price, availability_status);
+    const {vehicle_name, type, registration_number, daily_rent_price, availability_status} = req.body;
+    const result = await vehicleServices.updateVehicle(id,vehicle_name, type, registration_number, daily_rent_price, availability_status);
     res.status(200).json({
       success: true,
       message: "Vehicle updated successfully",
