@@ -10,7 +10,7 @@ router.post('/', auth("admin", "customer"), bookingController.createBooking);
 
 router.get('/', auth("admin", "customer"), bookingController.getAllBookings);
 
-router.put('/:id', auth("admin", "customer"), bookingController.updateBooking);
+router.put('/:bookingId', auth("admin", "customer"), bookingController.updateBooking);
 
 router.delete('/:id', auth("admin", "customer"), bookingController.deleteBooking);
 

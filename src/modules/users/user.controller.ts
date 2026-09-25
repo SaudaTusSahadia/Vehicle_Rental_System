@@ -120,11 +120,11 @@ const deleteUser = async (req: Request, res: Response) => {
       `SELECT id
        FROM bookings
        WHERE customer_id = $1
-       AND payment_status = 'active'`,
+       AND status = 'active'`,
       [id]
     );
 
-    if(bookingResult.rows.length > 0){
+    if (bookingResult.rows.length > 0) {
       return res.status(404).json({
         success: false,
         message: "User has active booking"
